@@ -33,7 +33,7 @@ class Logic:
             # we have all pieces in base(starting case)
             if player.all_pieces_in_base() and number == 6:
                 self.add_piece(board, player)
-                    move(board,player,1)
+                    move(board,player,depth+=1)
             else:
                 return        
             # if we have pieces in base not placed
@@ -47,6 +47,8 @@ class Logic:
                         case 1:
                             # we have move case outside for both states when base is empty and when there is in base but we want to move
                            break
+                        case _:
+                           "you're not supposed to be here"
 
             # if the player base is empty and we need to move only or for move
             pieces = player.get_movable_pieces()
@@ -57,29 +59,31 @@ class Logic:
             # need to implement check if input validation
             piece = pieces[user_choice]                   
             if number == 6 :
-               check_and_move(board,player,piece,)
-               move(board,player,depth+=1)
+                check_and_move(board,player,piece,number)
+                move(board,player,depth+=1)
             else:
-                check_and_move()
+                check_and_move(board,player,piece,number)
                 return
                        
                        
         
-    def check_and_move(self,board,player,piece,current_index,potential_index):
+    def check_and_move(self,board,player,piece,number):
+        current_position = piece.position
+        potential_position = current_position + number
         # checking if the potential index has pieces
         # if it doesn't we check for wall
-        if len(board[potential_index].pieces) == 0:
-            for i in range(current_index + 1, potential_index + 1):
+        if len(board[potential_position].pieces) == 0:
+            for i in range(current_position + 1, potential_position + 1):
                 # checked that two pieces of the same team excluding None are neighbors and different from the moved piece team
                  if board[i].pieces[0].team == board[i+1].pieces[0].team and board[i].pieces[0] != piece.team and board[i].pieces[0] != None:
                      return False
                  # here the path is clear so we move
                  else    
-                    pos = self.move_piece(board, piece, potential_index - current_index)
-                    player.pieces[current_index] = pos      
+                    new_position = self.move_piece(board, piece, number)
+                    piece.position = new_position    
         # if it does we try to kill/remove the piece 
         else:
-            for p in board[potential_index].pieces:
+            for p in board[potential_position].pieces:
                 if p.team != piece.team:
                     kill(board,p)    
                     return True
