@@ -27,69 +27,43 @@ class Logic:
         return next_pos
 
     def move(self, board, player, depth=0):
-        if player.turn == 1:
             number = self.roll_dice()
-            print(number)
-            if len(player.pieces) == 0:
-                if number == 6:
-                    self.add_piece(board, player)
-                    if player.turn == 1:
-                        return 1
-                    else:
-                        return -1
-                else:
-                    if player.turn == 1:
-                        return -1
-                    else:
-                        return 1
+            if depth = 4:
+                return
+            # we have all pieces in base(starting case)
+            if player.all_pieces_in_base() and number == 6:
+                self.add_piece(board, player)
+                    move(board,player,1)
             else:
+                return        
+            # if we have pieces in base not placed
+            if not player.is_base_empty():
                 if number == 6:
                     choice = input("Choose 0 to add a new piece or 1 to move piece")
                     match choice:
                         case 0:
-                            self.add_piece(board, player.turn)
-                            if player.turn == 1:
-                                return 1
-                            else:
-                                return -1
+                            self.add_piece(board, player)
+                            move(board,player,depth+=1)
                         case 1:
-                            print("Choose piece to move")
+                            # we have move case outside for both states when base is empty and when there is in base but we want to move
+                           break
 
-                            indexes = []
-                            for index, piece in enumerate(player.pieces):
-                                indexes.append(index)
-                                ans = input(
-                                    f"for piece at position {piece}: enter {index}"
-                                )
-
-                            if ans in indexes:
-                                pos = self.move_piece(board, piece, number)
-                                player.pieces[index] = pos
-                                if player.turn == 1:
-                                    return -1
-                                else:
-                                    return 1
-                        case default:
-                            return "error"
-                else:
-                    print("Choose piece to move")
-
-                    indexes = []
-                    for index, piece in enumerate(player.pieces):
-                        indexes.append(index)
-                        ans = input(f"for piece at position {piece}: enter {index}")
-
-                    if ans in indexes:
-                        pos = self.move_piece(board, piece, number)
-                        player.pieces[index] = pos
-                        if player.turn == 1:
-                            return -1
-                        else:
-                            return 1
-            print(number)
-
-        else:
-            return
+            # if the player base is empty and we need to move only or for move
+            pieces = player.get_movable_pieces()
+            print("choose piece to move")
+            for index,piece in pieces:
+                print(f"{index}- piece at {piece.position}")
+            user_choice = int(input("Enter the index of the piece you want to select (0-4): "))
+            # need to implement check if input validation
+            piece = pieces[user_choice]                   
+            if number == 6 :
+               check_and_move(board,player,piece,)
+               move(board,player,depth+=1)
+            else:
+                check_and_move()
+                return
+                       
+                       
         
     def check_and_move(self,board,player,piece,current_index,potential_index):
         # checking if the potential index has pieces

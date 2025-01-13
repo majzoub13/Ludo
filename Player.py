@@ -17,3 +17,11 @@ class Player:
          for piece in self.pieces:
                 if piece.position is None:
                     return piece
+    def get_movable_pieces(self):
+        movable_pieces = [piece for piece in self.pieces if piece.position is not None]
+        return movable_pieces
+    def is_base_empty(self):
+        return not any(piece.position is None for piece in self.pieces)
+    def all_pieces_in_base():
+        return all(piece.position is None for piece in self.pieces)
+        
