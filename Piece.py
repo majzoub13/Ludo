@@ -1,7 +1,8 @@
 class Piece:
-    def __init__(self, team):
+    def __init__(self, team, position):
         self.counter = 0
         self.team = team
+        this.position = position
         return
 
     def __str__(self):

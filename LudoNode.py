@@ -16,3 +16,7 @@ class Node:
             res += f"{s}{self.pieces[0]}"
 
         return res
+    
+    
+        
+        
