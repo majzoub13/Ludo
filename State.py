@@ -1,3 +1,6 @@
+from Base import Base
+
+
 class State:
     def __init__(self, board=[], score=0, turn=1):
         self.board = board
@@ -9,6 +12,7 @@ class State:
             "b": [0, 0, 0, 0, 0],
             "y": [0, 0, 0, 0, 0],
         }
+        self.base = Base()
 
     def __str__(self):
         return (
