@@ -39,24 +39,33 @@ class Logic:
             # if we have pieces in base not placed
             if not player.is_base_empty():
                 if number == 6:
-                    choice = input("Choose 0 to add a new piece or 1 to move piece")
-                    match choice:
-                        case 0:
-                            self.add_piece(board, player)
-                            move(board,player,depth+=1)
-                        case 1:
-                            # we have move case outside for both states when base is empty and when there is in base but we want to move
-                           break
-                        case _:
-                           "you're not supposed to be here"
+                    while(validation == False):
+                        choice = input("Choose 0 to add a new piece or 1 to move piece")
+                        match choice:
+                            case 0:
+                                validation = True
+                                self.add_piece(board, player)
+                                move(board,player,depth+=1)
+                                return
+                            case 1:
+                                validation = True
+                                # we have move case outside for both states when base is empty and when there is in base but we want to move
+                               break
+                            case _:
+                               print("invalid input")
 
             # if the player base is empty and we need to move only or for move
             pieces = player.get_movable_pieces()
             print("choose piece to move")
             for index,piece in pieces:
                 print(f"{index}- piece at {piece.position}")
-            user_choice = int(input("Enter the index of the piece you want to select (0-4): "))
-            # need to implement check if input validation
+            while(validation==False)        
+                user_choice = int(input("Enter the index of the piece you want to select : "))
+                if(0<= user_choice < len(pieces)):
+                    validation  = True
+                else:
+                    print("invalid input")
+            #user input right
             piece = pieces[user_choice]                   
             if number == 6 :
                 check_and_move(board,player,piece,number)
