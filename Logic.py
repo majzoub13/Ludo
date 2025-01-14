@@ -28,21 +28,19 @@ class Logic:
 
     def move_piece(self, board, piece, number, player, safe, index):
         curr_pos = piece.pos
-        print(f"curr_pos {curr_pos}")
         if piece in board[curr_pos].pieces:
-            print("3")
             board[curr_pos].pieces.remove(piece)
         next_pos = curr_pos + number
 
-        # if next_pos >= (len(board) - 1):
-        #     next_pos = next_pos - len(board) - 1
-        # if self.baseSpot[player.turn] in list(range(curr_pos, next_pos)):
-        #     piece.counter += number
-        #     safe[player.turn][self.baseSpot[player.turn] - next_pos].pieces.append(
-        #         piece
-        #     )
-        #     player.pieces[index] = self.baseSpot[player.turn] - next_pos
-        #     return self.baseSpot[player.turn] - next_pos
+        if next_pos >= (len(board) - 1):
+            next_pos = next_pos - len(board) - 1
+        if self.baseSpot[player.turn] in list(range(curr_pos, next_pos)):
+            piece.counter += number
+            safe[player.turn][self.baseSpot[player.turn] - next_pos].pieces.append(
+                piece
+            )
+            player.pieces[index] = self.baseSpot[player.turn] - next_pos
+            return self.baseSpot[player.turn] - next_pos
 
         piece.counter += number
         board[next_pos].pieces.append(piece)
@@ -79,7 +77,6 @@ class Logic:
 
             # if we have pieces in base not placed
             if not state.curr_player.is_home_empty():
-                print(f"GG: {number}")
                 if number == 6:
                     choice = int(
                         input("Choose 0 to add a new piece or 1 to move piece\n")
@@ -176,7 +173,6 @@ class Logic:
             else:
                 # if we have pieces in base not placed
                 if not state.curr_player.is_home_empty():
-                    print(f"GG: {number}")
                     if number == 6:
                         new_state = deepcopy(state)
                         self.add_piece(new_state.board, new_state.curr_player)
@@ -250,11 +246,8 @@ class Logic:
             self.move_piece(board, piece, number, player, safe, choice)
             return
 
-        print("ljl")
         if len(board[potential_pos].pieces) == 0:
-            print("1")
             if potential_pos > current_pos:
-                print("2")
                 for i in range(current_pos + 1, potential_pos + 1):
                     # checked that two pieces of the same team excluding None are neighbors
                     # and different from the moved piece team
@@ -263,11 +256,9 @@ class Logic:
                         and board[i].pieces[0] != None
                         and board[i].pieces[0].team != piece.team
                     ):
-                        print("false")
                         return False
                     # here the path is clear so we move
                     else:
-                        print("true")
                         self.move_piece(board, piece, number, player, safe, choice)
                         return True
             else:
