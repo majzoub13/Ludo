@@ -1,7 +1,10 @@
 class Node:
-    def __init__(self, is_protected=False):
-        self.is_protected = is_protected
+    def __init__(self):
+        self.is_protected = False
         self.pieces = []
+
+    def protected(self, is_protected):
+        self.is_protected = is_protected
 
     def __str__(self):
         res = ""

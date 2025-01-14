@@ -3,17 +3,17 @@ from LudoNode import Node
 
 
 class State:
-    def __init__(self, board=[], score=0, turn=1):
-        self.board = board
-        self.score = score
-        self.turn = turn
+    def __init__(self):
+        self.board = [Node() for _ in range(52)]
         self.safe = {
-            -1 : [Node() for _ in range(5)],
+            -1: [Node() for _ in range(5)],
             "g": [Node() for _ in range(5)],
             "b": [Node() for _ in range(5)],
-            1  : [Node() for _ in range(5)],
+            1: [Node() for _ in range(5)],
         }
         self.base = Base()
+        self.turn = 1
+        self.score = 0
 
     def __str__(self):
         return (
