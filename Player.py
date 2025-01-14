@@ -5,6 +5,13 @@ class Player:
     def __init__(self, turn, team):
         self.turn = turn
         self.team = team
+        self.score = 0
+        self.in_safe = [
+            False,
+            False,
+            False,
+            False,
+        ]
         self.pieces = [
             Piece(team),
             Piece(team),

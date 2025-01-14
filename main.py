@@ -18,7 +18,6 @@ class Main:
             self.init_state.board[p].protected(True)
 
     def main(self):
-
         new_state = self.logic.move(self.init_state, 1)
         i = 0
         while i < 20:
