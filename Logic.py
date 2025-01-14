@@ -5,6 +5,7 @@ import random as rand
 class Logic:
     def __init__(self):
         self.places = [0, 13, 26, 39]
+        self.baseSpot = {1:50,-1:24}
         return
 
     def roll_dice(self):
@@ -21,14 +22,24 @@ class Logic:
         else:
             return
 
-    def move_piece(self, board, curr_pos, number):
+    def move_piece(self, board, curr_pos, number,player,safe,index):
+        print(board[curr_pos].pieces)
         piece = board[curr_pos].pieces.pop()
         next_pos = curr_pos + number
+        print(len(board))
+        if next_pos >= (len(board) - 1):
+            next_pos = next_pos - len(board) - 1
+        if self.baseSpot[player.turn] in list(range(curr_pos, next_pos)):
+            piece.counter += number
+            safe[player.turn][self.baseSpot[player.turn]-next_pos].pieces.append(piece)
+            player.pieces[index] = self.baseSpot[player.turn]-next_pos
+            return self.baseSpot[player.turn]-next_pos
         piece.counter += number
         board[next_pos].pieces.append(piece)
+        player.pieces[index] = next_pos
         return next_pos
 
-    def move(self, board, base, player, depth=0):
+    def move(self, board, base, player,safe ,depth=0):
         if self.check_win(base):
             print(self.check_win(base) + "won")
             return
@@ -62,8 +73,7 @@ class Logic:
                             ans = int(input())
 
                             if ans in indexes:
-                                pos = self.move_piece(board, piece, number)
-                                player.pieces[index] = pos
+                                pos = self.move_piece(board, piece, number,player,safe,ans)
                                 return -1
                         case default:
                             return "error"
@@ -71,17 +81,18 @@ class Logic:
                     print("Choose piece to move")
 
                     indexes = []
+                    ghassan=[]
                     for index, piece in enumerate(player.pieces):
                         indexes.append(index)
+                        ghassan.append(piece)
                         print(f"for piece at position {piece}: enter {index}\n")
                     ans = int(input())
 
                     if ans in indexes:
-                        pos = self.move_piece(board, piece, number)
-                        player.pieces[index] = pos
+                        pos = self.move_piece(board, ghassan[ans], number,player,safe,ans)
                         return -1
         else:
-            number = 6
+            number = self.roll_dice()
             if len(player.pieces) == 0:
                 if number == 6:
                     self.add_piece(board, player)
@@ -89,7 +100,23 @@ class Logic:
                 else:
                     return 1
             else:
-                return 1
+                if number == 6:
+                    self.add_piece(board, player)
+                    return -1
+                else:
+                    indexes = []
+                    ghassan=[]
+                    print(player.pieces)
+                    for index, piece in enumerate(player.pieces):
+                        indexes.append(index)
+                        ghassan.append(piece)
+                        print(f"for piece at position {piece}: enter {index}\n")
+                    ans = rand.choice(indexes)
+                    print(indexes)
+                    print(ans)
+                    if ans in indexes:
+                        pos = self.move_piece(board, ghassan[ans], number,player,safe,ans)
+                        return 1
 
     def check_win(self, base):
         if base.red == 4:

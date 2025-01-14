@@ -21,14 +21,14 @@ class Main:
 
     def main(self):
 
-        play = self.logic.move(self.state.board, self.state.base, self.Player1)
+        play = self.logic.move(self.state.board, self.state.base, self.Player1,self.state.safe)
         i = 0
-        while i < 20:
+        while i < 100:
             print(self.state)
             if play == 1:
-                play = self.logic.move(self.state.board, self.state.base, self.Player1)
+                play = self.logic.move(self.state.board, self.state.base, self.Player1,self.state.safe)
             else:
-                play = self.logic.move(self.state.board, self.state.base, self.Player2)
+                play = self.logic.move(self.state.board, self.state.base, self.Player2,self.state.safe)
             print(self.state)
             i += 1
 
