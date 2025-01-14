@@ -7,3 +7,6 @@ class Piece:
 
     def __str__(self):
         return self.team
+
+    def __eq__(self, other):
+        return self.pos == other.pos

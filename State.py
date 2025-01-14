@@ -3,7 +3,7 @@ from LudoNode import Node
 
 
 class State:
-    def __init__(self):
+    def __init__(self, players):
         self.board = [Node() for _ in range(52)]
         self.safe = {
             -1: [Node() for _ in range(5)],
@@ -12,7 +12,9 @@ class State:
             1: [Node() for _ in range(5)],
         }
         self.base = Base()
-        self.turn = 1
+
+        self.players = players
+        self.curr_player = players[0]
         self.score = 0
 
     def __str__(self):
@@ -33,10 +35,3 @@ class State:
             f"                 {self.board[0]} {self.safe[1][4]}Y {self.board[48]}\n"
             f"                 {self.board[51]} {self.board[50]} {self.board[49]}\n"
         )
-        # size = 15  # A typical Ludo self.board is 15x15
-        # for i in range(size):
-        #     row = self.self.board[i * size:(i + 1) * size]
-        #     for node in row:
-        #         res += f'{node} '
-        #     res += '\n'
-        return res

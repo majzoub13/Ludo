@@ -22,7 +22,6 @@ class Player:
 
     def get_movable_pieces(self):
         movable_pieces = [piece for piece in self.pieces if piece.pos is not None]
-        print(movable_pieces)
         return movable_pieces
 
     def is_home_empty(self):

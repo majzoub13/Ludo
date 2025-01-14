@@ -11,23 +11,18 @@ class Main:
         self.logic = Logic()
         self.Player1 = Player(1, "y")
         self.Player2 = Player(-1, "r")
-        self.state = State()
+        self.init_state = State([self.Player1, self.Player2])
 
         self.protected = [0, 47, 13, 8, 26, 21, 39, 34]
         for p in self.protected:
-            self.state.board[p].protected(True)
+            self.init_state.board[p].protected(True)
 
     def main(self):
 
-        play = self.logic.move(self.state.board, self.state.base, self.Player1,self.state.safe)
+        new_state = self.logic.move(self.init_state, 1)
         i = 0
-        while i < 100:
-            print(self.state)
-            if play == 1:
-                play = self.logic.move(self.state.board, self.state.base, self.Player1,self.state.safe)
-            else:
-                play = self.logic.move(self.state.board, self.state.base, self.Player2,self.state.safe)
-            print(self.state)
+        while i < 20:
+            new_state = self.logic.move(new_state, 1)
             i += 1
 
 
