@@ -9,8 +9,7 @@ import random as rand
 class Main:
     def __init__(self):
         self.logic = Logic()
-        self.Player1 = Player(1, "y")
-        self.Player2 = Player(-1, "r")
+
         self.protected = [0, 47, 13, 8, 26, 21, 39, 34]
 
         nodes = [Node() for _ in range(52)]
