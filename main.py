@@ -20,7 +20,7 @@ class Main:
     def main(self):
         new_state = self.logic.move(self.init_state, 1)
         i = 0
-        while i < 20:
+        while i < 500:
             new_state = self.logic.move(new_state, 1)
             i += 1
 
