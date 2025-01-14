@@ -26,7 +26,7 @@ class Logic:
         board[self.color_protected_places[player.team]].pieces.append(home_piece)
         home_piece.pos = self.color_protected_places[player.team]
 
-    def move_piece(self, board, piece, number, player, safe, index, base):
+    def move_piece(self, board, piece, number, player, safe, index, base, state):
         curr_pos = piece.pos
         if player.in_safe[index]:
             piece.counter += number
@@ -34,6 +34,8 @@ class Logic:
                 i = piece.counter - 50
                 safe[player.turn][i].pieces.append(piece)
                 player.pieces[index] = i
+                self.update_player_score(state)
+                print(f"score for state is {self.get_score(state)}")
                 return i
             elif piece.counter >= 56:
                 if player.team == "r":
@@ -44,6 +46,8 @@ class Logic:
                     pass
             else:
                 print("can't move beyond the base")
+                self.update_player_score(state)
+                print(f"score for state is {self.get_score(state)}")
                 return piece.counter - number
         else:
             if piece in board[curr_pos].pieces:
@@ -55,6 +59,8 @@ class Logic:
                 i = piece.counter - 50
                 safe[player.turn][i].pieces.append(piece)
                 player.pieces[index] = i
+                self.update_player_score(state)
+                print(f"score for state is {self.get_score(state)}")
                 return i
             elif piece.counter == 56:
                 if player.team == "r":
@@ -67,6 +73,8 @@ class Logic:
                 board[next_pos].pieces.append(piece)
                 player.pieces[index] = piece
                 piece.pos = next_pos
+                self.update_player_score(state)
+                print(f"score for state is {self.get_score(state)}")
                 return next_pos
 
     def move(self, state, depth=0):
@@ -89,6 +97,7 @@ class Logic:
                 if number == 6:
                     self.add_piece(new_state.board, new_state.curr_player)
                     self.update_player_score(new_state)
+                    print(f"score for state is {self.get_score(state)}")
 
                     print(new_state)
                     return self.move(new_state, depth + 1)
@@ -107,6 +116,7 @@ class Logic:
                             new_state = deepcopy(state)
                             self.add_piece(new_state.board, new_state.curr_player)
                             self.update_player_score(new_state)
+                            print(f"score for state is {self.get_score(state)}")
 
                             print(new_state)
                             return self.move(new_state, depth + 1)
@@ -131,8 +141,8 @@ class Logic:
                         new_state.safe,
                         0,
                         state.base,
+                        state,
                     )
-                    self.update_player_score(new_state)
 
                     print(new_state)
                     return self.move(new_state, depth + 1)
@@ -145,8 +155,8 @@ class Logic:
                         new_state.safe,
                         0,
                         state.base,
+                        state,
                     )
-                    self.update_player_score(new_state)
 
                     self.change_player(new_state)
                     print(new_state)
@@ -169,8 +179,8 @@ class Logic:
                     new_state.safe,
                     user_choice,
                     state.base,
+                    state,
                 )
-                self.update_player_score(new_state)
 
                 print(new_state)
                 return self.move(new_state, depth + 1)
@@ -183,8 +193,8 @@ class Logic:
                     new_state.safe,
                     user_choice,
                     state.base,
+                    state,
                 )
-                self.update_player_score(new_state)
 
                 self.change_player(new_state)
                 print(new_state)
@@ -194,6 +204,8 @@ class Logic:
                 new_state = deepcopy(state)
                 if number == 6:
                     self.add_piece(new_state.board, new_state.curr_player)
+                    self.update_player_score(new_state)
+                    print(f"score for state is {self.get_score(state)}")
 
                     print(new_state)
                     return self.move(new_state, depth + 1)
@@ -206,7 +218,6 @@ class Logic:
                     if number == 6:
                         new_state = deepcopy(state)
                         self.add_piece(new_state.board, new_state.curr_player)
-                        self.update_player_score(new_state)
 
                         print(new_state)
                         return self.move(new_state, depth + 1)
@@ -223,8 +234,8 @@ class Logic:
                         new_state.safe,
                         0,
                         state.base,
+                        state,
                     )
-                    self.update_player_score(new_state)
 
                     self.change_player(new_state)
                     print(new_state)
@@ -247,8 +258,8 @@ class Logic:
                     new_state.safe,
                     ai_choice,
                     state.base,
+                    state,
                 )
-                self.update_player_score(new_state)
 
                 self.change_player(new_state)
                 print(new_state)
@@ -265,7 +276,7 @@ class Logic:
             return "yellow"
         return None
 
-    def check_and_move(self, board, player, piece, number, safe, choice, base):
+    def check_and_move(self, board, player, piece, number, safe, choice, base, state):
         current_pos = piece.pos
         potential_pos = current_pos + number
         print(f"potential_pos: {potential_pos}")
@@ -278,7 +289,7 @@ class Logic:
             len(board[potential_pos].pieces) > 0
             and board[potential_pos].pieces[0].team == piece.team
         ):
-            self.move_piece(board, piece, number, player, safe, choice, base)
+            self.move_piece(board, piece, number, player, safe, choice, base, state)
             return
 
         if len(board[potential_pos].pieces) == 0:
@@ -295,7 +306,7 @@ class Logic:
                     # here the path is clear so we move
                     else:
                         self.move_piece(
-                            board, piece, number, player, safe, choice, base
+                            board, piece, number, player, safe, choice, base, state
                         )
                         return True
             else:
@@ -311,7 +322,7 @@ class Logic:
                     # here the path is clear so we move
                     else:
                         self.move_piece(
-                            board, piece, number, player, safe, choice, base
+                            board, piece, number, player, safe, choice, base, state
                         )
                         return True
 
@@ -327,7 +338,7 @@ class Logic:
                     # here the path is clear so we move
                     else:
                         self.move_piece(
-                            board, piece, number, player, safe, choice, base
+                            board, piece, number, player, safe, choice, base, state
                         )
                         return True
 
@@ -355,7 +366,7 @@ class Logic:
                 if state.board[piece.pos].is_protected:
                     player.score += 5
 
-    def gets_score(self, state):
+    def get_score(self, state):
         score = 0
         for p in state.players:
             score += p.score * p.turn
