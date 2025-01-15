@@ -26,68 +26,79 @@ class Logic:
         board[self.color_protected_places[player.team]].pieces.append(home_piece)
         home_piece.pos = self.color_protected_places[player.team]
 
-    def move_piece(self, board, piece, number, player, safe, index, base, state):
+    def move_piece(self, state, piece, number, index):
         piece.counter += number
-        curr_pos = piece.pos
         print(f"the counter for piece is {piece.counter}")
-        if player.in_safe[index]:
+        if state.curr_player.in_safe[index]:
+            curr_pos = piece.safe
             if piece.counter < 56:
                 i = piece.counter - 51
-                safe[player.turn][i].pieces.append(piece)
-                player.pieces[index] = piece
+                if i > 5:
+                    return curr_pos
+                piece.safe = i
+                if piece in state.safe[state.curr_player.turn]:
+                    state.safe[state.curr_player.turn].remove(piece)
+                state.safe[state.curr_player.turn][i].pieces.append(piece)
+                state.curr_player.pieces[index] = piece
                 self.update_player_score(state)
                 print(f"score for state is {self.get_score(state)}")
                 return i
             elif piece.counter == 56:
-                if player.team == "r":
-                    base.red += 1
-                    if piece in board[curr_pos].pieces:
-                        board[curr_pos].pieces.remove(piece)
-                elif player.team == "y":
-                    base.yellow += 1
-                    if piece in board[curr_pos].pieces:
-                        board[curr_pos].pieces.remove(piece)
+                if state.curr_player.team == "r":
+                    state.base.red += 1
+                    if piece in state.safe[curr_pos].pieces:
+                        state.safe[curr_pos].pieces.remove(piece)
+                        state.curr_player.pieces.pop(index)
+                elif state.curr_player.team == "y":
+                    state.base.yellow += 1
+                    if piece in state.safe[curr_pos].pieces:
+                        state.safe[curr_pos].pieces.remove(piece)
+                        state.curr_player.pieces.pop(index)
                 else:
-                    print(f"you fucked up {piece.counter}")
+                    print("no addition to base yet")
             else:
                 print("can't move beyond the base")
+                piece.counter -= number
                 self.update_player_score(state)
                 print(f"score for state is {self.get_score(state)}")
-                return piece.counter - number
+                return piece.counter
         else:
-            if piece in board[curr_pos].pieces:
-                board[curr_pos].pieces.remove(piece)
+            curr_pos = piece.pos
+            if piece in state.board[curr_pos].pieces:
+                state.board[curr_pos].pieces.remove(piece)
             next_pos = curr_pos + number
 
-            if next_pos > 51:
+            if next_pos >= 51:
                 next_pos -= 51
 
             if piece.counter > 50 and piece.counter < 56:
+                piece.pos = None
                 i = piece.counter - 51
+                piece.safe = i
                 print(f"the new index in the safe is{i}")
-                safe[player.turn][i].pieces.append(piece)
-                player.pieces[index] = piece
+                state.safe[state.curr_player.turn][i].pieces.append(piece)
+                state.curr_player.pieces[index] = piece
                 self.update_player_score(state)
                 print(f"score for state is {self.get_score(state)}")
                 return i
             elif piece.counter == 56:
-                if player.team == "r":
-                    base.red += 1
-                    if piece in board[curr_pos].pieces:
-                        board[curr_pos].pieces.remove(piece)
-                elif player.team == "y":
-                    base.yellow += 1
-                    if piece in board[curr_pos].pieces:
-                        board[curr_pos].pieces.remove(piece)
+                if state.curr_player.team == "r":
+                    state.base.red += 1
+                    state.curr_player.pieces.pop(index)
+                elif state.curr_player.team == "y":
+                    state.base.yellow += 1
+                    state.curr_player.pieces.pop(index)
                 else:
-                    print(f"you fucked up {piece.counter}")
+                    print("no addition to base yet")
             else:
                 print(next_pos)
-                board[next_pos].pieces.append(piece)
-                player.pieces[index] = piece
                 piece.pos = next_pos
+                state.board[next_pos].pieces.append(piece)
+                state.curr_player.pieces[index] = piece
                 self.update_player_score(state)
                 print(f"score for state is {self.get_score(state)}")
+                if piece.counter > 56:
+                    piece.counter -= number
                 return next_pos
 
     def move(self, state, depth=0):
@@ -159,7 +170,10 @@ class Logic:
 
             print("Choose piece to move")
             for index, piece in enumerate(pieces):
-                print(f"{index}- piece at position: {piece.pos}")
+                if piece.safe:
+                    print(f"{index}- piece at safe position: {piece.safe}")
+                else:
+                    print(f"{index}- piece at board position: {piece.pos}")
             user_choice = int(
                 input("Enter the index of the piece you want to select (0-3): ")
             )
@@ -210,8 +224,11 @@ class Logic:
                 #     return new_state
 
                 from Algorithims import Algorithims
-                algo=Algorithims()
-                new_state=algo.expectimax(state,2,state.players[0],state.players[1],number)
+
+                algo = Algorithims()
+                new_state = algo.expectimax(
+                    state, 2, state.players[0], state.players[1], number
+                )
                 print(new_state)
                 # indexes = []
                 # ghassan = []
@@ -249,6 +266,18 @@ class Logic:
         return None
 
     def check_and_move(self, state, piece, number, choice):
+        if (
+            piece.safe != None
+            and len(state.safe[state.curr_player.turn][piece.safe].pieces) > 0
+            and piece in state.safe[state.curr_player.turn][piece.safe].pieces
+        ):
+            self.move_piece(
+                state,
+                piece,
+                number,
+                choice,
+            )
+            return True
         current_pos = piece.pos
         potential_pos = current_pos + number
         print(f"potential_pos: {potential_pos}")
@@ -263,16 +292,12 @@ class Logic:
             and state.board[potential_pos].pieces[0].team == piece.team
         ):
             self.move_piece(
-                state.board,
+                state,
                 piece,
                 number,
-                state.curr_player,
-                state.safe,
                 choice,
-                state.base,
-                state,
             )
-            return
+            return True
 
         if len(state.board[potential_pos].pieces) == 0:
             if potential_pos > current_pos:
@@ -288,14 +313,10 @@ class Logic:
                     # here the path is clear so we move
                     else:
                         self.move_piece(
-                            state.board,
+                            state,
                             piece,
                             number,
-                            state.curr_player,
-                            state.safe,
                             choice,
-                            state.base,
-                            state,
                         )
                         return True
             else:
@@ -311,14 +332,10 @@ class Logic:
                     # here the path is clear so we move
                     else:
                         self.move_piece(
-                            state.board,
+                            state,
                             piece,
                             number,
-                            state.curr_player,
-                            state.safe,
                             choice,
-                            state.base,
-                            state,
                         )
                         return True
 
@@ -334,29 +351,26 @@ class Logic:
                     # here the path is clear so we move
                     else:
                         self.move_piece(
-                            state.board,
+                            state,
                             piece,
                             number,
-                            state.curr_player,
-                            state.safe,
                             choice,
-                            state.base,
-                            state,
                         )
                         return True
 
         # if it does we try to kill/remove the piece
         else:
             for p in state.board[potential_pos].pieces:
-                if p.team != piece.team:
+                if p.team != piece.team and not state.board[potential_pos].is_protected:
                     self.kill(state.board, potential_pos)
                     return True
+            return False
 
     def kill(self, board, position):
         for piece in board[position].pieces:
             board[position].pieces.remove(piece)
             piece.pos = None
-            return
+        return
 
     def update_player_score(self, state):
         player = state.curr_player
