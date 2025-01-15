@@ -103,9 +103,9 @@ class Logic:
                 if number == 6:
                     self.add_piece(new_state.board, new_state.curr_player)
                     self.update_player_score(new_state)
-                    print(f"score for state is {self.get_score(state)}")
+                    # print(f"score for state is {self.get_score(state)}")
 
-                    print(new_state)
+                    # print(new_state)
                     return self.move(new_state, depth + 1)
                 else:
                     self.change_player(new_state)
@@ -122,9 +122,9 @@ class Logic:
                             new_state = deepcopy(state)
                             self.add_piece(new_state.board, new_state.curr_player)
                             self.update_player_score(new_state)
-                            print(f"score for state is {self.get_score(state)}")
+                            # print(f"score for state is {self.get_score(state)}")
 
-                            print(new_state)
+                            # print(new_state)
                             return self.move(new_state, depth + 1)
                         case 1:
                             # we have move case outside for both states when base is empty
@@ -175,35 +175,37 @@ class Logic:
                 if number == 6:
                     self.add_piece(new_state.board, new_state.curr_player)
                     self.update_player_score(new_state)
-                    print(f"score for state is {self.get_score(state)}")
+                    # print(f"score for state is {self.get_score(state)}")
 
-                    print(new_state)
+                    # print(new_state)
                     return self.move(new_state, depth + 1)
                 else:
                     self.change_player(new_state)
                     return new_state
             else:
-                # if we have pieces in base not placed
-                if not state.curr_player.is_home_empty():
-                    if number == 6:
-                        new_state = deepcopy(state)
-                        self.add_piece(new_state.board, new_state.curr_player)
+                # # if we have pieces in base not placed
+                # if not state.curr_player.is_home_empty():
+                #     if number == 6:
+                #         new_state = deepcopy(state)
+                #         self.add_piece(new_state.board, new_state.curr_player)
 
-                        print(new_state)
-                        return self.move(new_state, depth + 1)
+                #         print(new_state)
+                #         return self.move(new_state, depth + 1)
 
-                # if the player base is empty and we need to move only or for move
-                pieces = state.curr_player.get_movable_pieces()
-                new_state = deepcopy(state)
-                if len(pieces) == 1:
-                    self.check_and_move(new_state, pieces[0], number, 0)
+                # # if the player base is empty and we need to move only or for move
+                # pieces = state.curr_player.get_movable_pieces()
+                # new_state = deepcopy(state)
+                # if len(pieces) == 1:
+                #     self.check_and_move(new_state, pieces[0], number, 0)
 
-                    self.change_player(new_state)
-                    print(new_state)
-                    return new_state
+                #     self.change_player(new_state)
+                #     print(new_state)
+                #     return new_state
 
                 from Algorithims import Algorithims
-
+                algo=Algorithims()
+                new_state=algo.expectimax(state,2,state.players[0],state.players[1],number)
+                print(new_state)
                 # indexes = []
                 # ghassan = []
                 # for index, piece in enumerate(pieces):
