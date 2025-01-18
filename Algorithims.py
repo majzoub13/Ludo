@@ -13,14 +13,23 @@ class Algorithims:
         if depth == 0 or self.logic.check_win(state.base):
             return state
         # Determine if the current player is maximizing or minimizing
-        player = state.curr_player
-        turn = player.turn
-        is_maximizing = turn == 1
-        best_value = float("-inf") if is_maximizing else float("inf")
+        if state.curr_player.turn == 1:
+            is_maximizing = True
+        else:
+            is_maximizing = False
+
+        if is_maximizing:
+            best_value = float("-inf")
+        else:
+            best_value = float("inf")
         best_state = state  # Keep track of the best state
+
         # Generate all possible states based on the current dice roll
         # curr_state=copy.deepcopy(state)
-        all_states = self.all_possible_states(state, player, number)
+        all_states = self.all_possible_states(state, state.curr_player, number)
+        
+        if len(all_states) == 0:
+            return best_state 
 
         for new_state in all_states:
             expected_value = 0
@@ -29,9 +38,8 @@ class Algorithims:
                 future_state = self.expectimax(
                     temp_state, depth - 1, max_player, min_player, dice_roll
                 )
-                expected_value += future_state.score * (
-                    1 / 6
-                )  # khalil (future_state.score * (1 / 6)* dice_roll)
+                expected_value += future_state.score * (1 / 6)
+                # khalil (future_state.score * (1 / 6)* dice_roll)
 
             if is_maximizing:
                 if expected_value > best_value:
@@ -48,14 +56,18 @@ class Algorithims:
         if number != 6 and len(player.get_movable_pieces()) == 0:
             return []
         if number == 6:
+            pieces = player.get_movable_pieces()
+            for index, piece in enumerate(pieces):
+                new_state2 = copy.deepcopy(state)
+                if self.logic.check_and_move(new_state2, piece, number, piece.id):
+                    states.append(new_state2)
+
             if not player.is_home_empty():
-                new_state = copy.deepcopy(state)
-                if self.logic.add_piece(new_state.board, player):
-                    states.append(new_state)
-                pieces = player.get_movable_pieces()
-                for index, piece in enumerate(pieces):
-                    if self.logic.check_and_move(new_state, piece, number, piece.id):
-                        states.append(new_state)
+                new_state1 = copy.deepcopy(state)
+                if self.logic.add_piece(new_state1.board, new_state1.curr_player):
+                    self.logic.update_player_score(new_state1)
+                    states.append(new_state1)
+
         else:
             pieces = player.get_movable_pieces()
             for index, piece in enumerate(pieces):
