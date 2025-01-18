@@ -186,15 +186,12 @@ class Logic:
                         continue
                     print(f"{piece.id}- piece at safe position: {piece.safe}")
                 else:
-                    # if wall state dont show for the user still n
-                    if  (len(state.board[piece.pos+number].pieces) > 0
-                            and state.board[piece.pos+number].pieces[0].team != piece.team):
-                        continue
+                    #Todo if wall state dont show for the user
                     print(f"{piece.id}- piece at board position: {piece.pos}")
             user_choice = int(
                 input("Enter the id of the piece you want to select (0-3): ")
             )
-            # need to implement check if input validation
+            #Todo need to implement check if input validation
             piece = state.curr_player.pieces[user_choice]
             if number == 6:
                 self.check_and_move(new_state, piece, number, user_choice)
@@ -228,7 +225,7 @@ class Logic:
                 new_state = algo.expectimax(
                     state, 2, state.players[0], state.players[1], number
                 )
-                
+
                 self.update_player_score(new_state)
 
                 self.change_player(new_state)
@@ -247,6 +244,8 @@ class Logic:
         return None
 
     def check_and_move(self, state ,piece, number, choice):
+        if piece.pos==None:
+            return False
         if (
             piece.safe != None
             and len(state.safe[state.curr_player.turn][piece.safe].pieces) > 0
@@ -259,6 +258,8 @@ class Logic:
                 choice,
             )
             return True
+        if piece.pos==None:
+            return False
         current_pos = piece.pos
         potential_pos = current_pos + number
         #print(f"potential_pos: {potential_pos}")
