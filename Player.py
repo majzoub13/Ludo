@@ -13,10 +13,10 @@ class Player:
             False,
         ]
         self.pieces = [
-            Piece(team),
-            Piece(team),
-            Piece(team),
-            Piece(team),
+            Piece(team,0),
+            Piece(team,1),
+            Piece(team,2),
+            Piece(team,3),
         ]
 
     def place_piece(self, index, position):
@@ -28,8 +28,7 @@ class Player:
                 return piece
 
     def get_movable_pieces(self):
-        movable_pieces = [piece for piece in self.pieces if piece.pos is not None or piece.safe is not None]
-        print(movable_pieces)
+        movable_pieces = [piece for piece in self.pieces if (piece.pos is not None) or (piece.safe is not None)]
         return movable_pieces
 
     def is_home_empty(self):

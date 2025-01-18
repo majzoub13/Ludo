@@ -19,6 +19,8 @@ class State:
 
     def __str__(self):
         return (
+            f"The pices for player1 is {self.players[0].pieces[0].pos} , {self.players[0].pieces[1].pos} ,{self.players[0].pieces[2].pos}, {self.players[0].pieces[3].pos}\n"
+            f"The pices for player2 is {self.players[1].pieces[0].pos} , {self.players[1].pieces[1].pos} ,{self.players[1].pieces[2].pos}, {self.players[1].pieces[3].pos}\n"
             f"                 {self.board[23]} {self.board[24]} {self.board[25]}\n"
             f"                 {self.board[22]} {self.safe[-1][0]}R {self.board[26]}\n"
             f"                 {self.board[21]} {self.safe[-1][1]}R {self.board[27]}\n"
