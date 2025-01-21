@@ -85,10 +85,6 @@ class Logic:
                 state.board[curr_pos].pieces.remove(piece)
             next_pos = curr_pos + number
 
-            # Calculate the next position
-            if next_pos >= 51:
-                next_pos -= 51
-
             # Move piece logic
             if piece.counter > 50 and piece.counter < 56:
                 piece.pos = None
@@ -99,20 +95,25 @@ class Logic:
                 state.curr_player.in_safe[index] = True
                 state.curr_player.pieces[index] = piece
                 self.update_player_score(state)
-
                 return new_safe_pos
+
             elif piece.counter == 56:
                 if state.curr_player.team == "r":
                     piece.pos = None
                     state.base.red += 1
                     piece.inBase = True
+                    state.curr_player.pieces[index] = piece
                 elif state.curr_player.team == "y":
                     piece.pos = None
                     state.base.yellow += 1
                     piece.inBase = True
+                    state.curr_player.pieces[index] = piece
                 else:
                     print("No addition to base yet")
             else:
+                # Calculate the next position
+                if next_pos >= 51:
+                    next_pos -= 51
                 piece.pos = next_pos
                 state.board[next_pos].pieces.append(piece)
                 state.curr_player.pieces[index] = piece
@@ -123,7 +124,6 @@ class Logic:
     def move(self, state, depth=0):
         # if win state exit
         if self.check_win(state.base):
-            print(self.check_win(state.base) + "won")
             return state
         # roll dice
         number = self.roll_dice()
@@ -157,67 +157,91 @@ class Logic:
             # if we have pieces in home not placed
             if not state.curr_player.is_home_empty():
                 if number == 6:
-                    choice = int(
-                        input("Choose 0 to add a new piece or 1 to move piece\n")
-                    )
-                    match choice:
-                        case 0:
-                            new_state = deepcopy(state)
-                            self.add_piece(new_state.board, new_state.curr_player)
-                            self.update_player_score(new_state)
+                    while True:
+                        try:
+                            choice = int(
+                                input("Choose 0 to add a new piece or 1 to move piece\n")
+                            )
+                            match choice:
+                                case 0:
+                                    new_state = deepcopy(state)
+                                    self.add_piece(new_state.board, new_state.curr_player)
+                                    self.update_player_score(new_state)
 
-                            print(new_state)
-                            return self.move(new_state, depth + 1)
-                        case 1:
-                            # we have move case outside for both states when base is empty
-                            # and when there is in base but we want to move
-                            pass
-                        case _:
-                            print("You're not supposed to be here")
-                            return state
+                                    print(new_state)
+                                    return self.move(new_state, depth + 1)
+                                case 1:
+                                    # we have move case outside for both states when base is empty
+                                    # and when there is in base but we want to move
+                                    # pass
+                                    break
+                                case _:
+                                    continue
+                                    # print("You're not supposed to be here")
+                                    # return state
+                        except:
+                            continue
 
             # if the player home is empty and we need to move only or for move
             pieces = state.curr_player.get_movable_pieces()
             new_state = deepcopy(state)
             if len(pieces) == 1:
                 if number == 6:
-                    self.check_and_move(new_state, pieces[0], number, pieces[0].id)
+                    if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[1]:
+                        newer_state = deepcopy(new_state)
+                        self.move(newer_state, depth)
 
                     print(new_state)
                     return self.move(new_state, depth + 1)
                 else:
-                    self.check_and_move(new_state, pieces[0], number, pieces[0].id)
+                    if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[1]:
+                        newer_state = deepcopy(new_state)
+                        self.move(newer_state, depth)
 
                     self.change_player(new_state)
                     print(new_state)
                     return new_state
 
             print("Choose piece to move")
+            indexes = []
             for index, piece in enumerate(pieces):
                 if not piece.inBase:
                     if piece.safe is not None:
-                        if number + piece.safe > 6:
+                        if number + piece.safe >= 6:
                             continue
                         print(f"{piece.id}- piece at safe position: {piece.safe}")
                     else:
                         # Todo if wall state dont show for the user
                         print(f"{piece.id}- piece at board position: {piece.pos}")
-            user_choice = int(
-                input("Enter the id of the piece you want to select (0-3): ")
-            )
-            # Todo need to implement check if input validation
-            piece = state.curr_player.pieces[user_choice]
-            if number == 6:
-                self.check_and_move(new_state, piece, number, user_choice)
+                    indexes.append(piece.id)
 
-                print(new_state)
-                return self.move(new_state, depth + 1)
-            else:
-                self.check_and_move(new_state, piece, number, user_choice)
+            while True:
+                try:
+                    user_choice = int(
+                        input("Enter the id of the piece you want to select (0-3): ")
+                    )
+                    # input validation
+                    if not user_choice in indexes:
+                        continue
 
-                self.change_player(new_state)
-                print(new_state)
-                return new_state
+                    piece = state.curr_player.pieces[user_choice]
+                    if number == 6:
+                        if self.check_and_move(new_state, piece, number, user_choice)[1]:
+                            newer_state = deepcopy(new_state)
+                            self.move(newer_state, depth)
+
+                        print(new_state)
+                        return self.move(new_state, depth + 1)
+                    else:
+                        if self.check_and_move(new_state, piece, number, user_choice)[1]:
+                            newer_state = deepcopy(new_state)
+                            self.move(newer_state, depth)
+
+                        self.change_player(new_state)
+                        print(new_state)
+                        return new_state
+                except:
+                    continue
         # computer turn
         else:
             if state.curr_player.all_pieces_in_home():
@@ -263,10 +287,10 @@ class Logic:
 
     def check_and_move(self, state, piece, number, choice):
         if piece.inBase or piece.counter + number > 56:
-            return False
+            return (False, False)
 
         if piece.pos is None and piece.safe is None:
-            return False
+            return (False, False)
 
         print(f"GG {piece.id}: POS:{piece.pos} SAFE:{piece.safe}")
 
@@ -281,10 +305,11 @@ class Logic:
                 number,
                 choice,
             )
-            return True
+            return (True, False)
 
         if piece.pos is None:
-            return False
+            return (False, False)
+
         current_pos = piece.pos
         potential_pos = current_pos + number
 
@@ -292,18 +317,6 @@ class Logic:
         # if it doesn't we check for wall
         if potential_pos >= 51:
             potential_pos -= 51
-
-        # if (
-        #     len(state.board[potential_pos].pieces) > 0
-        #     and state.board[potential_pos].pieces[0].team == piece.team
-        # ):
-        #     self.move_piece(
-        #         state,
-        #         piece,
-        #         number,
-        #         choice,
-        #     )
-        #     return True
 
         if (len(state.board[potential_pos].pieces) == 0) or (
             len(state.board[potential_pos].pieces) > 0
@@ -318,23 +331,15 @@ class Logic:
                         and state.board[i].pieces[0] != None
                         and state.board[i].pieces[0].team != piece.team
                     ):
-                        return False
-                    # here the path is clear so we move
-                    # else:
-                    #     self.move_piece(
-                    #         state,
-                    #         piece,
-                    #         number,
-                    #         choice,
-                    #     )
-                    #     return True
+                        return (False, False)
+                # here the path is clear so we move
                 self.move_piece(
                     state,
                     piece,
                     number,
                     choice,
                 )
-                return True
+                return (True, False)
             else:
                 for i in range(current_pos, 52):
                     # checked that two pieces of the same team excluding None are neighbors
@@ -344,16 +349,7 @@ class Logic:
                         and state.board[i].pieces[0] != None
                         and state.board[i].pieces[0].team != piece.team
                     ):
-                        return False
-                    # here the path is clear so we move
-                    # else:
-                    #     self.move_piece(
-                    #         state,
-                    #         piece,
-                    #         number,
-                    #         choice,
-                    #     )
-                    #     return True
+                        return (False, False)
 
                 for i in range(0, potential_pos + 1):
                     # checked that two pieces of the same team excluding None are neighbors
@@ -363,23 +359,15 @@ class Logic:
                         and state.board[i].pieces[0] != None
                         and state.board[i].pieces[0].team != piece.team
                     ):
-                        return False
-                    # here the path is clear so we move
-                    # else:
-                    #     self.move_piece(
-                    #         state,
-                    #         piece,
-                    #         number,
-                    #         choice,
-                    #     )
-                    #     return True
+                        return (False, False)
+                # here the path is clear so we move
                 self.move_piece(
                     state,
                     piece,
                     number,
                     choice,
                 )
-                return True
+                return (True, False)
 
         # if it does we try to kill/remove the piece
         else:
@@ -392,14 +380,20 @@ class Logic:
                         number,
                         choice,
                     )
-                    return True
-            return False
+                    return (True, True)
+            return (False, False)
 
     def kill(self, board, position):
         for piece in board[position].pieces:
             board[position].pieces.remove(piece)
             piece.pos = None
         return
+
+    def get_score(self, state):
+        score = 0
+        for p in state.players:
+            score += p.score * p.turn
+        return score
 
     def update_player_score(self, state):
         for p in state.players:
@@ -411,12 +405,6 @@ class Logic:
                     p.score += piece.counter
                     if state.board[piece.pos].is_protected:
                         p.score += 5
-
-    def get_score(self, state):
-        score = 0
-        for p in state.players:
-            score += p.score * p.turn
-        return score
 
     def count_pieces(self, player):
         return len(

@@ -27,9 +27,9 @@ class Algorithims:
         # Generate all possible states based on the current dice roll
         # curr_state=copy.deepcopy(state)
         all_states = self.all_possible_states(state, state.curr_player, number)
-        
+
         if len(all_states) == 0:
-            return best_state 
+            return best_state
 
         for new_state in all_states:
             expected_value = 0
@@ -59,7 +59,7 @@ class Algorithims:
             pieces = player.get_movable_pieces()
             for index, piece in enumerate(pieces):
                 new_state2 = copy.deepcopy(state)
-                if self.logic.check_and_move(new_state2, piece, number, piece.id):
+                if self.logic.check_and_move(new_state2, piece, number, piece.id)[0]:
                     states.append(new_state2)
 
             if not player.is_home_empty():
@@ -72,7 +72,7 @@ class Algorithims:
             pieces = player.get_movable_pieces()
             for index, piece in enumerate(pieces):
                 new_state = copy.deepcopy(state)
-                if self.logic.check_and_move(new_state, piece, number, piece.id):
+                if self.logic.check_and_move(new_state, piece, number, piece.id)[0]:
                     states.append(new_state)
             print(f"states fetched are {len(states)}")
         return states

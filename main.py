@@ -19,10 +19,14 @@ class Main:
 
     def main(self):
         new_state = self.logic.move(self.init_state, 1)
-        i = 0
-        while i < 500:
+
+        while True:
+            win = self.logic.check_win(new_state.base)
+            if win is not None:
+                print(self.check_win(new_state.base) + " won")
+                break
+
             new_state = self.logic.move(new_state, 1)
-            i += 1
 
 
 if __name__ == "__main__":
