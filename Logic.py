@@ -1,6 +1,7 @@
 from Piece import Piece
 import random as rand
 from copy import deepcopy
+from my_game import LudoScreen
 
 
 class Logic:
@@ -8,6 +9,7 @@ class Logic:
         self.places = [0, 13, 26, 39]
         self.color_protected_places = {"y": 0, "r": 26}
         self.baseSpot = {1: 50, -1: 24}
+        self.screen = LudoScreen()
         return
 
     def roll_dice(self):
@@ -147,6 +149,7 @@ class Logic:
                         self.update_player_score(new_state)
 
                         print(new_state)
+                        self.screen.draw(new_state)
                         return self.move(new_state, depth + 1)
                     else:
                         print("..........problem........")
@@ -169,6 +172,7 @@ class Logic:
                                     self.update_player_score(new_state)
 
                                     print(new_state)
+                                    self.screen.draw(new_state)
                                     return self.move(new_state, depth + 1)
                                 case 1:
                                     # we have move case outside for both states when base is empty
@@ -192,6 +196,7 @@ class Logic:
                         self.move(newer_state, depth)
 
                     print(new_state)
+                    self.screen.draw(new_state)
                     return self.move(new_state, depth + 1)
                 else:
                     if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[1]:
@@ -199,6 +204,7 @@ class Logic:
                         self.move(newer_state, depth)
 
                     self.change_player(new_state)
+                    self.screen.draw(new_state)
                     print(new_state)
                     return new_state
 
@@ -231,6 +237,7 @@ class Logic:
                             self.move(newer_state, depth)
 
                         print(new_state)
+                        self.screen.draw(new_state)
                         return self.move(new_state, depth + 1)
                     else:
                         if self.check_and_move(new_state, piece, number, user_choice)[1]:
@@ -238,6 +245,7 @@ class Logic:
                             self.move(newer_state, depth)
 
                         self.change_player(new_state)
+                        self.screen.draw(new_state)
                         print(new_state)
                         return new_state
                 except:
@@ -251,6 +259,7 @@ class Logic:
                     self.update_player_score(new_state)
 
                     print(new_state)
+                    self.screen.draw(new_state)
                     return self.move(new_state, depth + 1)
                 else:
                     self.change_player(new_state)
@@ -267,10 +276,12 @@ class Logic:
 
                 if number == 6:
                     print(new_state)
+                    self.screen.draw(new_state)
                     return self.move(new_state, depth + 1)
 
                 else:
                     self.change_player(new_state)
+                    self.screen.draw(new_state)
                     print(new_state)
                     return new_state
 
