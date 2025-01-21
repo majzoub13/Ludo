@@ -39,11 +39,12 @@ class Main:
                     # game.select(row, col)
                     # game.update()
 
-            # if win is not None:
-            #     print(self.check_win(new_state.base) + " won")
-            #     run = False
-            #     break
+            if win is not None:
+                print(win + " won")
+                run = False
+                break
 
+            # commented this line for game not to crach and load for ever
             # new_state = self.logic.move(new_state, 1)
         pygame.quit()
 
