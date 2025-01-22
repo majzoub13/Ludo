@@ -508,7 +508,7 @@ class Logic:
                                             print(new_state)
                                             return new_state
                 except:
-                    # print("excpected...")
+                    # print("excepted...")
                     continue
 
         # computer turn
