@@ -189,14 +189,14 @@ class Logic:
                 if number == 6:
                     if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[1]:
                         newer_state = deepcopy(new_state)
-                        self.move(newer_state, depth)
+                        return self.move(newer_state, depth)
 
                     print(new_state)
                     return self.move(new_state, depth + 1)
                 else:
                     if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[1]:
                         newer_state = deepcopy(new_state)
-                        self.move(newer_state, depth)
+                        return self.move(newer_state, depth)
 
                     self.change_player(new_state)
                     print(new_state)
@@ -228,14 +228,14 @@ class Logic:
                     if number == 6:
                         if self.check_and_move(new_state, piece, number, user_choice)[1]:
                             newer_state = deepcopy(new_state)
-                            self.move(newer_state, depth)
+                            return self.move(newer_state, depth)
 
                         print(new_state)
                         return self.move(new_state, depth + 1)
                     else:
                         if self.check_and_move(new_state, piece, number, user_choice)[1]:
                             newer_state = deepcopy(new_state)
-                            self.move(newer_state, depth)
+                            return self.move(newer_state, depth)
 
                         self.change_player(new_state)
                         print(new_state)
