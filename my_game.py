@@ -113,6 +113,17 @@ class LudoScreen:
         title2 = text2.get_rect(center=rect2.center)
         self.screen.blit(text2, title2)
 
+        # draw bases
+        for i in range(state.base.yellow):
+            off = i * 11
+            pygame.draw.circle(self.screen, (255, 0, 255), (309 + off, 378), 7)
+            pygame.draw.circle(self.screen, (255, 255, 0), (309 + off, 378), 5)
+
+        for i in range(state.base.red):
+            off = i * 11
+            pygame.draw.circle(self.screen, (255, 0, 255), (309 + off, 273), 7)
+            pygame.draw.circle(self.screen, (255, 0, 0), (309 + off, 273), 5)
+
         for square in state.squares:
             square.draw(self.screen, state)
         pygame.display.flip()
