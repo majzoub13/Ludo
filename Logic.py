@@ -2,7 +2,8 @@ from Piece import Piece
 import random as rand
 from copy import deepcopy
 from my_game import LudoScreen
-
+import pygame
+import sys
 
 class Logic:
     def __init__(self):
@@ -15,6 +16,23 @@ class Logic:
     def roll_dice(self):
         return rand.randint(1, 6)
 
+    def get_score(self, state):
+        score = 0
+        for p in state.players:
+            score += p.score * p.turn
+        return score
+
+    def check_win(self, base):
+        if base.red == 4:
+            return "red"
+        if base.green == 4:
+            return "green"
+        if base.blue == 4:
+            return "blue"
+        if base.yellow == 4:
+            return "yellow"
+        return None
+
     def change_player(self, state):
         if state.curr_player.turn == 1:
             state.curr_player = state.players[1]
@@ -23,8 +41,19 @@ class Logic:
         else:
             return
 
+    def update_player_score(self, state):
+        for p in state.players:
+            p.score = 0
+            for piece in p.pieces:
+                if piece.pos == None:
+                    p.score -= 5
+                else:
+                    p.score += piece.counter
+                    if state.board[piece.pos].is_protected:
+                        p.score += 5
+
     def add_piece(self, board, player):
-        if not player.is_home_empty() and self.count_pieces(player) < 4:
+        if not player.is_home_empty() and len(player.get_movable_pieces()) < 4:
             home_piece = player.get_home_piece()
 
             home_piece.pos = self.color_protected_places[player.team]
@@ -123,188 +152,170 @@ class Logic:
 
                 return next_pos
 
-    def move(self, state, depth=0,number=None,selected_piece_id=None):
-        # if win state exit
-        if self.check_win(state.base):
-            return state
-        # roll dice
-        if number is None:
-            number = self.roll_dice()
-        print(state.curr_player)
-        print("dice roll:", number)
-        # for three sixes only
-        if depth == 4:
-            new_state = deepcopy(state)
-            self.change_player(new_state)
-            return new_state
+    # def move(self, state, depth=0):
+    #     # if win state exit
+    #     if self.check_win(state.base):
+    #         return state
+    #     # roll dice
+    #     number = self.roll_dice()
+    #     print(state.curr_player)
+    #     print("dice roll:", number)
+    #     # for three sixes only
+    #     if depth == 4:
+    #         new_state = deepcopy(state)
+    #         self.change_player(new_state)
+    #         return new_state
 
-        if state.curr_player.turn == 1:
-            # we have all pieces in home(starting case)
-            if (
-                state.curr_player.all_pieces_in_home()
-                or len(state.curr_player.get_movable_pieces()) == 0
-            ):
-                new_state = deepcopy(state)
-                if number == 6:
-                    if self.add_piece(new_state.board, new_state.curr_player):
-                        self.update_player_score(new_state)
+    #     if state.curr_player.turn == 1:
+    #         # we have all pieces in home(starting case)
+    #         if (
+    #             state.curr_player.all_pieces_in_home()
+    #             or len(state.curr_player.get_movable_pieces()) == 0
+    #         ):
+    #             new_state = deepcopy(state)
+    #             if number == 6:
+    #                 if self.add_piece(new_state.board, new_state.curr_player):
+    #                     self.update_player_score(new_state)
 
-                        print(new_state)
-                        self.screen.draw(new_state)
-                        return self.move(new_state, depth + 1)
-                    else:
-                        print("..........problem........")
-                else:
-                    self.change_player(new_state)
-                    return new_state
+    #                     print(new_state)
+    #                     return self.move(new_state, depth + 1)
+    #                 else:
+    #                     print("..........problem........")
+    #             else:
+    #                 self.change_player(new_state)
+    #                 return new_state
 
-            # if we have pieces in home not placed
-            if not state.curr_player.is_home_empty():
-                if selected_piece_id is not None:
-                    piece = state.curr_player.pieces[selected_piece_id]
-                    # Implement logic to move the selected piece using the dice result
-                    if self.check_and_move(new_state, piece, number, selected_piece_id):
-                        # Move the piece and update the state
-                        self.update_player_score(new_state)
-                        print(new_state)
-                        self.screen.draw(new_state)
-                        return new_state
-                if number == 6:
-                    while True:
-                        try:
-                            choice = int(
-                                input("Choose 0 to add a new piece or 1 to move piece\n")
-                            )
-                            match choice:
-                                case 0:
-                                    new_state = deepcopy(state)
-                                    self.add_piece(new_state.board, new_state.curr_player)
-                                    self.update_player_score(new_state)
+    #         # if we have pieces in home not placed
+    #         if not state.curr_player.is_home_empty():
+    #             if number == 6:
+    #                 while True:
+    #                     try:
+    #                         choice = int(
+    #                             input(
+    #                                 "Choose 0 to add a new piece or 1 to move piece\n"
+    #                             )
+    #                         )
+    #                         match choice:
+    #                             case 0:
+    #                                 new_state = deepcopy(state)
+    #                                 self.add_piece(
+    #                                     new_state.board, new_state.curr_player
+    #                                 )
+    #                                 self.update_player_score(new_state)
 
-                                    print(new_state)
-                                    self.screen.draw(new_state)
-                                    return self.move(new_state, depth + 1)
-                                case 1:
-                                    # we have move case outside for both states when base is empty
-                                    # and when there is in base but we want to move
-                                    # pass
-                                    break
-                                case _:
-                                    continue
-                                    # print("You're not supposed to be here")
-                                    # return state
-                        except:
-                            continue
+    #                                 print(new_state)
+    #                                 return self.move(new_state, depth + 1)
+    #                             case 1:
+    #                                 # we have move case outside for both states when base is empty
+    #                                 # and when there is in base but we want to move
+    #                                 # pass
+    #                                 break
+    #                             case _:
+    #                                 continue
+    #                                 # print("You're not supposed to be here")
+    #                                 # return state
+    #                     except:
+    #                         continue
 
-            # if the player home is empty and we need to move only or for move
-            pieces = state.curr_player.get_movable_pieces()
-            new_state = deepcopy(state)
-            if len(pieces) == 1:
-                if number == 6:
-                    if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[1]:
-                        newer_state = deepcopy(new_state)
-                        self.move(newer_state, depth)
+    #         # if the player home is empty and we need to move only or for move
+    #         pieces = state.curr_player.get_movable_pieces()
+    #         new_state = deepcopy(state)
+    #         if len(pieces) == 1:
+    #             if number == 6:
+    #                 if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[
+    #                     1
+    #                 ]:
+    #                     newer_state = deepcopy(new_state)
+    #                     self.move(newer_state, depth)
 
-                    print(new_state)
-                    self.screen.draw(new_state)
-                    return self.move(new_state, depth + 1)
-                else:
-                    if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[1]:
-                        newer_state = deepcopy(new_state)
-                        self.move(newer_state, depth)
+    #                 print(new_state)
+    #                 return self.move(new_state, depth + 1)
+    #             else:
+    #                 if self.check_and_move(new_state, pieces[0], number, pieces[0].id)[
+    #                     1
+    #                 ]:
+    #                     newer_state = deepcopy(new_state)
+    #                     self.move(newer_state, depth)
 
-                    self.change_player(new_state)
-                    self.screen.draw(new_state)
-                    print(new_state)
-                    return new_state
+    #                 self.change_player(new_state)
+    #                 print(new_state)
+    #                 return new_state
 
-            print("Choose piece to move")
-            indexes = []
-            for index, piece in enumerate(pieces):
-                if not piece.inBase:
-                    if piece.safe is not None:
-                        if number + piece.safe >= 6:
-                            continue
-                        print(f"{piece.id}- piece at safe position: {piece.safe}")
-                    else:
-                        # Todo if wall state dont show for the user
-                        print(f"{piece.id}- piece at board position: {piece.pos}")
-                    indexes.append(piece.id)
+    #         print("Choose piece to move")
+    #         indexes = []
+    #         for index, piece in enumerate(pieces):
+    #             if not piece.inBase:
+    #                 if piece.safe is not None:
+    #                     if number + piece.safe >= 6:
+    #                         continue
+    #                     print(f"{piece.id}- piece at safe position: {piece.safe}")
+    #                 else:
+    #                     # Todo if wall state dont show for the user
+    #                     print(f"{piece.id}- piece at board position: {piece.pos}")
+    #                 indexes.append(piece.id)
 
-            while True:
-                try:
-                    user_choice = int(
-                        input("Enter the id of the piece you want to select (0-3): ")
-                    )
-                    # input validation
-                    if not user_choice in indexes:
-                        continue
+    #         while True:
+    #             try:
+    #                 user_choice = int(
+    #                     input("Enter the id of the piece you want to select (0-3): ")
+    #                 )
+    #                 # input validation
+    #                 if not user_choice in indexes:
+    #                     continue
 
-                    piece = state.curr_player.pieces[user_choice]
-                    if number == 6:
-                        if self.check_and_move(new_state, piece, number, user_choice)[1]:
-                            newer_state = deepcopy(new_state)
-                            self.move(newer_state, depth)
+    #                 piece = state.curr_player.pieces[user_choice]
+    #                 if number == 6:
+    #                     if self.check_and_move(new_state, piece, number, user_choice)[
+    #                         1
+    #                     ]:
+    #                         newer_state = deepcopy(new_state)
+    #                         self.move(newer_state, depth)
 
-                        print(new_state)
-                        self.screen.draw(new_state)
-                        return self.move(new_state, depth + 1)
-                    else:
-                        if self.check_and_move(new_state, piece, number, user_choice)[1]:
-                            newer_state = deepcopy(new_state)
-                            self.move(newer_state, depth)
+    #                     print(new_state)
+    #                     return self.move(new_state, depth + 1)
+    #                 else:
+    #                     if self.check_and_move(new_state, piece, number, user_choice)[
+    #                         1
+    #                     ]:
+    #                         newer_state = deepcopy(new_state)
+    #                         self.move(newer_state, depth)
 
-                        self.change_player(new_state)
-                        self.screen.draw(new_state)
-                        print(new_state)
-                        return new_state
-                except:
-                    continue
-        # computer turn
-        else:
-            if state.curr_player.all_pieces_in_home():
-                new_state = deepcopy(state)
-                if number == 6:
-                    self.add_piece(new_state.board, new_state.curr_player)
-                    self.update_player_score(new_state)
+    #                     self.change_player(new_state)
+    #                     print(new_state)
+    #                     return new_state
+    #             except:
+    #                 continue
+    #     # computer turn
+    #     else:
+    #         if state.curr_player.all_pieces_in_home():
+    #             new_state = deepcopy(state)
+    #             if number == 6:
+    #                 self.add_piece(new_state.board, new_state.curr_player)
+    #                 self.update_player_score(new_state)
 
-                    print(new_state)
-                    self.screen.draw(new_state)
-                    return self.move(new_state, depth + 1)
-                else:
-                    self.change_player(new_state)
-                    return new_state
-            else:
-                from Algorithims import Algorithims
+    #                 print(new_state)
+    #                 return self.move(new_state, depth + 1)
+    #             else:
+    #                 self.change_player(new_state)
+    #                 return new_state
+    #         else:
+    #             from Algorithims import Algorithims
 
-                algo = Algorithims()
+    #             algo = Algorithims()
 
-                new_state = algo.expectimax(
-                    state, 2, state.players[0], state.players[1], number
-                )
-                self.update_player_score(new_state)
+    #             new_state = algo.expectimax(
+    #                 state, 2, state.players[0], state.players[1], number
+    #             )
+    #             self.update_player_score(new_state)
 
-                if number == 6:
-                    print(new_state)
-                    self.screen.draw(new_state)
-                    return self.move(new_state, depth + 1)
+    #             if number == 6:
+    #                 print(new_state)
+    #                 return self.move(new_state, depth + 1)
 
-                else:
-                    self.change_player(new_state)
-                    self.screen.draw(new_state)
-                    print(new_state)
-                    return new_state
-
-    def check_win(self, base):
-        if base.red == 4:
-            return "red"
-        if base.green == 4:
-            return "green"
-        if base.blue == 4:
-            return "blue"
-        if base.yellow == 4:
-            return "yellow"
-        return None
+    #             else:
+    #                 self.change_player(new_state)
+    #                 print(new_state)
+    #                 return new_state
 
     def check_and_move(self, state, piece, number, choice):
         if piece.inBase or piece.counter + number > 56:
@@ -410,28 +421,191 @@ class Logic:
             piece.pos = None
         return
 
-    def get_score(self, state):
-        score = 0
-        for p in state.players:
-            score += p.score * p.turn
-        return score
+    def play(self, state, depth=0):
+        # if win state exit
+        if self.check_win(state.base):
+            return state
+        # roll dice
+        number = self.roll_dice()
+        print(state.curr_player)
+        print("dice roll:", number)
+        # for three sixes only
+        if depth == 4:
+            new_state = deepcopy(state)
+            self.change_player(new_state)
+            return new_state
 
-    def update_player_score(self, state):
-        for p in state.players:
-            p.score = 0
-            for piece in p.pieces:
-                if piece.pos == None:
-                    p.score -= 5
+        if state.curr_player.turn == 1:
+            # we have all pieces in home(starting case)
+            if (
+                state.curr_player.all_pieces_in_home()
+                or len(state.curr_player.get_movable_pieces()) == 0
+            ):
+                new_state = deepcopy(state)
+                if number == 6:
+                    if self.add_piece(new_state.board, new_state.curr_player):
+                        self.update_player_score(new_state)
+
+                        print(new_state)
+                        self.screen.draw(new_state)
+                        return self.play(new_state, depth + 1)
+                    else:
+                        print("..........problem........")
+                        return new_state
                 else:
-                    p.score += piece.counter
-                    if state.board[piece.pos].is_protected:
-                        p.score += 5
+                    self.change_player(new_state)
+                    return new_state
 
-    def count_pieces(self, player):
-        return len(
-            [
-                piece
-                for piece in player.pieces
-                if piece.pos is not None or piece.safe is not None
-            ]
-        )
+            # if we have pieces in home not placed
+            if not state.curr_player.is_home_empty():
+                while True:
+                    try:
+                        for event in pygame.event.get():
+                            # print('get')
+                            if event.type == pygame.QUIT:
+                                sys.exit()
+                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                print('mouse')
+                                pos = pygame.mouse.get_pos()  # Get mouse position
+                                print("pos", pos)
+                                tuple_i = self.screen.get_click(pos, state)
+                                print("tuple_i", tuple_i)
+                                break
+
+                        if tuple_i[0] is None:
+                            if tuple_i[1]:
+                                if number == 6:
+                                    new_state = deepcopy(state)
+                                    self.add_piece(
+                                        new_state.board, new_state.curr_player
+                                    )
+                                    self.update_player_score(new_state)
+
+                                    print(new_state)
+                                    self.screen.draw(new_state)
+                                    return self.play(new_state, depth + 1)
+                                else:
+                                    print("cant add piece, number is not 6")
+                                    continue
+                            else:
+                                # if the player home is empty and we need to move only or for move
+                                pieces = state.curr_player.get_movable_pieces()
+                                new_state = deepcopy(state)
+                                if len(pieces) == 1:
+                                    if number == 6:
+                                        if self.check_and_move(
+                                            new_state,
+                                            pieces[0],
+                                            number,
+                                            pieces[0].id,
+                                        )[1]:
+                                            newer_state = deepcopy(new_state)
+                                            self.play(newer_state, depth)
+
+                                        print(new_state)
+                                        self.screen.draw(new_state)
+                                        return self.play(new_state, depth + 1)
+                                    else:
+                                        if self.check_and_move(
+                                            new_state,
+                                            pieces[0],
+                                            number,
+                                            pieces[0].id,
+                                        )[1]:
+                                            newer_state = deepcopy(new_state)
+                                            self.play(newer_state, depth)
+
+                                        self.change_player(new_state)
+                                        self.screen.draw(new_state)
+                                        print(new_state)
+                                        return new_state
+                                else:
+                                    print("continued...")
+                                    continue
+                        else:
+                            pieces = state.curr_player.get_movable_pieces()
+                            new_state = deepcopy(state)
+                            if tuple_i[0].is_safe:
+                                for piece in pieces:
+                                    if piece.safe == tuple_i[0].index:
+                                        if number == 6:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            print(new_state)
+                                            self.screen.draw(new_state)
+                                            return self.play(new_state, depth + 1)
+                                        else:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            self.change_player(new_state)
+                                            self.screen.draw(new_state)
+                                            print(new_state)
+                                            return new_state
+                            else:
+                                for piece in pieces:
+                                    if piece.pos == tuple_i[0].index:
+                                        if number == 6:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            print(new_state)
+                                            self.screen.draw(new_state)
+                                            return self.play(new_state, depth + 1)
+                                        else:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            self.change_player(new_state)
+                                            self.screen.draw(new_state)
+                                            print(new_state)
+                                            return new_state
+                    except:
+                        # print("excpected...")
+                        continue
+        # computer turn
+        else:
+            if state.curr_player.all_pieces_in_home():
+                new_state = deepcopy(state)
+                if number == 6:
+                    self.add_piece(new_state.board, new_state.curr_player)
+                    self.update_player_score(new_state)
+
+                    print(new_state)
+                    self.screen.draw(new_state)
+                    return self.play(new_state, depth + 1)
+                else:
+                    self.change_player(new_state)
+                    return new_state
+            else:
+                from Algorithims import Algorithims
+
+                algo = Algorithims()
+
+                new_state = algo.expectimax(
+                    state, 2, state.players[0], state.players[1], number
+                )
+                self.update_player_score(new_state)
+
+                if number == 6:
+                    print(new_state)
+                    self.screen.draw(new_state)
+                    return self.play(new_state, depth + 1)
+                else:
+                    self.change_player(new_state)
+                    self.screen.draw(new_state)
+                    print(new_state)
+                    return new_state

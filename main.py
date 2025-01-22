@@ -6,6 +6,7 @@ from Logic import Logic
 import random as rand
 from my_game import LudoScreen
 import pygame
+from copy import deepcopy
 
 
 class Main:
@@ -25,33 +26,34 @@ class Main:
         self.dice_result = None
 
     def main(self):
-        new_state = self.logic.move(self.init_state, 1)
+        new_state = deepcopy(self.init_state)
+        print("new_state3:", new_state)
         selected_piece_id = None
         run = True
         while run:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    #pos = pygame.mouse.get_pos()  # Get mouse position
-
-                    self.dice_result = self.logic.roll_dice()
-                    print(f"Dice rolled: {self.dice_result}")
-                    if selected_piece_id is None:
-                        # Check if a piece was clicked
-                        pass
-                    else:
-                        # Move the selected piece using the dice result
-                        new_state = self.logic.move(new_state, 1, self.dice_result, selected_piece_id)
-                        selected_piece_id = None
-                        self.dice_result = None
-
-                    new_state = self.logic.move(new_state, 1, self.dice_result, selected_piece_id)
+            # Check if game ended
             win = self.logic.check_win(new_state.base)
             if win is not None:
                 print(f"{win} won")
                 run = False
-            self.screen.update(new_state, self.dice_result)
+                continue
+            if new_state.curr_player.turn == 1:
+                # dice_roll = self.logic.roll_dice()
+                for event in pygame.event.get():
+                    print('get_main')
+                    if event.type == pygame.QUIT:
+                        print('quit')
+                        run = False
+                        continue
+                # play
+                new_state = self.logic.play(new_state, 1)
+                print("new_state1:", new_state)
+                # self.screen.update(new_state, self.dice_result)
+            else:
+                # play
+                new_state = self.logic.play(new_state, 1)
+                print("new_state2:", new_state)
+                # self.screen.update(new_state, self.dice_result)
 
         pygame.quit()
 

@@ -33,20 +33,19 @@ class Player:
         for piece in self.pieces:
             if piece.pos is not None or piece.safe is not None:
                 movable_pieces.append(piece)
-        # movable_pieces = [
-        #     piece
-        #     for piece in self.pieces
-        #     if (piece.pos is not None) or (piece.safe is not None)
-        # ]
         return movable_pieces
 
     def is_home_empty(self):
         return not any(
-            piece.pos is None and piece.safe is None and not piece.inBase for piece in self.pieces
+            piece.pos is None and piece.safe is None and not piece.inBase
+            for piece in self.pieces
         )
 
     def all_pieces_in_home(self):
-        return all(piece.pos is None and piece.safe is None and not piece.inBase for piece in self.pieces)
+        return all(
+            piece.pos is None and piece.safe is None and not piece.inBase
+            for piece in self.pieces
+        )
 
     def __str__(self):
         return f"Player Team: {self.team} Turn: {self.turn}"
