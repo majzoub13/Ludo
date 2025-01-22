@@ -50,14 +50,8 @@ class Square:
             obj_y = self.y + row * cell_size + cell_size // 2
 
             piece.draw(surface, (obj_x, obj_y), 4)
-
-
-def update_screen(state):
-    pass
-
-
-def start_screen(state):
-    pass
+    def contains(self, pos):
+        return self.x <= pos[0] <= self.x + self.size and self.y <= pos[1] <= self.y + self.size
 
 
 class LudoScreen:
@@ -80,4 +74,20 @@ class LudoScreen:
         self.screen.fill(WHITE)
         for square in state.squares:
             square.draw(self.screen)
+        pygame.display.flip()
+    def update(self, state, dice_result):
+        self.draw(state)
+        self.draw_dice_result(dice_result,state)  # Draw the dice result on the screen
+
+    def draw_dice_result(self, dice_result,state):
+        font = pygame.font.Font(None, 74)
+        text = font.render(str(dice_result), True, WHITE)
+        text_rect = text.get_rect(topleft=(10, 10))  # Position the text
+        background_rect = pygame.Rect(text_rect)
+        background_rect.inflate_ip(20, 20)
+
+        current_player_color=RED if state.curr_player.team == "y" else YELLOW
+        # Draw the background rectangle
+        pygame.draw.rect(self.screen, current_player_color, background_rect)
+        self.screen.blit(text, text_rect)  # Draw the text on the screen
         pygame.display.flip()

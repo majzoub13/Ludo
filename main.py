@@ -22,30 +22,37 @@ class Main:
 
         self.screen = LudoScreen()
         self.screen.draw(self.init_state)
+        self.dice_result = None
 
     def main(self):
         new_state = self.logic.move(self.init_state, 1)
-
+        selected_piece_id = None
         run = True
         while run:
-            win = self.logic.check_win(new_state.base)
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    pos = pygame.mouse.get_pos()
-                    # row, col = get_row_col_from_mouse(pos)
-                    # game.select(row, col)
-                    # game.update()
+                    #pos = pygame.mouse.get_pos()  # Get mouse position
 
+                    self.dice_result = self.logic.roll_dice()
+                    print(f"Dice rolled: {self.dice_result}")
+                    if selected_piece_id is None:
+                        # Check if a piece was clicked
+                        pass
+                    else:
+                        # Move the selected piece using the dice result
+                        new_state = self.logic.move(new_state, 1, self.dice_result, selected_piece_id)
+                        selected_piece_id = None
+                        self.dice_result = None
+
+                    new_state = self.logic.move(new_state, 1, self.dice_result, selected_piece_id)
+            win = self.logic.check_win(new_state.base)
             if win is not None:
-                print(win + " won")
+                print(f"{win} won")
                 run = False
-                break
+            self.screen.update(new_state, self.dice_result)
 
-            # commented this line for game not to crach and load for ever
-            # new_state = self.logic.move(new_state, 1)
         pygame.quit()
 
 

@@ -123,12 +123,13 @@ class Logic:
 
                 return next_pos
 
-    def move(self, state, depth=0):
+    def move(self, state, depth=0,number=None,selected_piece_id=None):
         # if win state exit
         if self.check_win(state.base):
             return state
         # roll dice
-        number = self.roll_dice()
+        if number is None:
+            number = self.roll_dice()
         print(state.curr_player)
         print("dice roll:", number)
         # for three sixes only
@@ -159,6 +160,15 @@ class Logic:
 
             # if we have pieces in home not placed
             if not state.curr_player.is_home_empty():
+                if selected_piece_id is not None:
+                    piece = state.curr_player.pieces[selected_piece_id]
+                    # Implement logic to move the selected piece using the dice result
+                    if self.check_and_move(new_state, piece, number, selected_piece_id):
+                        # Move the piece and update the state
+                        self.update_player_score(new_state)
+                        print(new_state)
+                        self.screen.draw(new_state)
+                        return new_state
                 if number == 6:
                     while True:
                         try:
