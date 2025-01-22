@@ -41,6 +41,9 @@ class Main:
                         continue
                 # play
                 new_state = self.logic.play(new_state, 1)
+                if new_state is False:
+                    run = False
+                    continue
                 print("new_state1:", new_state)
             else:
                 # play

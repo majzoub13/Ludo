@@ -48,7 +48,7 @@ class Logic:
             p.score = 0
             for piece in p.pieces:
                 if piece.pos == None:
-                    p.score -= 5
+                    p.score -= 6
                 else:
                     p.score += piece.counter
                     if state.board[piece.pos].is_protected:
@@ -306,7 +306,8 @@ class Logic:
                         if event.type == pygame.QUIT:
                             pygame.display.quit()
                             pygame.quit()
-                            sys.exit()
+                            return False
+
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             print("mouse")
                             pos = pygame.mouse.get_pos()  # Get mouse position
