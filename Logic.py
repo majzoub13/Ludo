@@ -304,6 +304,8 @@ class Logic:
                     for event in pygame.event.get():
                         # print('get')
                         if event.type == pygame.QUIT:
+                            pygame.display.quit()
+                            pygame.quit()
                             sys.exit()
                         if event.type == pygame.MOUSEBUTTONDOWN:
                             print("mouse")

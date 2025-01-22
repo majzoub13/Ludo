@@ -5,6 +5,7 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 BLACK = (0, 0, 0)
+GRAY = (120, 120, 120)
 WHITE = (255, 255, 255)
 
 
@@ -28,6 +29,8 @@ class Square:
 
         if color.lower() == "black":
             self.color = BLACK
+        if color.lower() == "gray":
+            self.color = GRAY
         if color.lower() == "red":
             self.color = RED
         elif color.lower() == "green":
