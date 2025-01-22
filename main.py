@@ -22,7 +22,7 @@ class Main:
             self.init_state.board[p].protected(True)
 
         self.screen = LudoScreen()
-        self.screen.draw(self.init_state)
+        self.screen.draw(self.init_state, '')
         self.dice_result = None
 
     def main(self):

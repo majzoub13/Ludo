@@ -26,6 +26,7 @@ class Piece:
             return False
         return self.pos == other.pos
 
-    def draw(self, screen, position, radius):
+    def draw(self, screen, position, inner_radius, outer_radius):
         color = self.COLOR.get(self.team)
-        pygame.draw.circle(screen, color, position, radius)
+        pygame.draw.circle(screen, (255, 0, 255), position, outer_radius)
+        pygame.draw.circle(screen, color, position, inner_radius)

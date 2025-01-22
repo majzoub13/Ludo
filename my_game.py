@@ -43,7 +43,6 @@ class Square:
         if type(self.value) == int:
             return
         for i, piece in enumerate(self.value.pieces):
-            print(piece)
             row = i // 2
             col = i % 2
 
@@ -51,7 +50,7 @@ class Square:
             obj_x = self.x + col * cell_size + cell_size // 2
             obj_y = self.y + row * cell_size + cell_size // 2
 
-            piece.draw(surface, (obj_x, obj_y), 4)
+            piece.draw(surface, (obj_x, obj_y), 5, 7)
 
     def contains(self, pos):
         return (
@@ -75,22 +74,10 @@ class LudoScreen:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Ludo")
 
-    def draw(self, state):
-        self.screen.fill(WHITE)
-        # add piece
-        rect = pygame.draw.rect(self.screen, (0, 0, 0), (525, 21, 105, 63))
-        font = pygame.font.SysFont("arial", 21)
-        text = font.render("Add Piece", True, WHITE)
-        title = text.get_rect(center=rect.center)
-        self.screen.blit(text, title)
-
-        for square in state.squares:
-            square.draw(self.screen, state)
-        pygame.display.flip()
-
-    def update(self, state, dice_result):
-        self.draw(state)
-        self.draw_dice_result(dice_result, state)  # Draw the dice result on the screen
+    def update(self, state, number):
+        return
+        # self.draw_dice(number, state)
+        # self.draw_screen(state)
 
     def get_click(self, pos, state):
         x, y = pos
@@ -109,7 +96,28 @@ class LudoScreen:
 
         return (None, False)
 
-    def draw_dice_result(self, dice_result, state):
+    def draw(self, state, number):
+        self.screen.fill(WHITE)
+        # dice roll
+        dice_color = YELLOW if state.curr_player.team == "y" else RED
+        rect1 = pygame.draw.rect(self.screen, dice_color, (21, 21, 63, 63))
+        font1 = pygame.font.SysFont("arial", 63)
+        text1 = font1.render(f"{number}", True, WHITE)
+        title1 = text1.get_rect(center=rect1.center)
+        self.screen.blit(text1, title1)
+
+        # add piece
+        rect2 = pygame.draw.rect(self.screen, (0, 0, 0), (525, 21, 105, 63))
+        font2 = pygame.font.SysFont("arial", 21)
+        text2 = font2.render("Add Piece", True, WHITE)
+        title2 = text2.get_rect(center=rect2.center)
+        self.screen.blit(text2, title2)
+
+        for square in state.squares:
+            square.draw(self.screen, state)
+        pygame.display.flip()
+
+    def draw_dice(self, dice_result, state):
         font = pygame.font.Font(None, 74)
         text = font.render(str(dice_result), True, WHITE)
         text_rect = text.get_rect(topleft=(10, 10))  # Position the text

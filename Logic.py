@@ -5,6 +5,7 @@ from my_game import LudoScreen
 import pygame
 import sys
 
+
 class Logic:
     def __init__(self):
         self.places = [0, 13, 26, 39]
@@ -425,8 +426,11 @@ class Logic:
         # if win state exit
         if self.check_win(state.base):
             return state
+
         # roll dice
         number = self.roll_dice()
+        self.screen.draw(state, number)
+
         print(state.curr_player)
         print("dice roll:", number)
         # for three sixes only
@@ -447,7 +451,7 @@ class Logic:
                         self.update_player_score(new_state)
 
                         print(new_state)
-                        self.screen.draw(new_state)
+                        self.screen.draw(new_state, number)
                         return self.play(new_state, depth + 1)
                     else:
                         print("..........problem........")
@@ -456,22 +460,24 @@ class Logic:
                     self.change_player(new_state)
                     return new_state
 
-            # if we have pieces in home not placed
-            if not state.curr_player.is_home_empty():
-                while True:
-                    try:
-                        for event in pygame.event.get():
-                            # print('get')
-                            if event.type == pygame.QUIT:
-                                sys.exit()
-                            if event.type == pygame.MOUSEBUTTONDOWN:
-                                print('mouse')
-                                pos = pygame.mouse.get_pos()  # Get mouse position
-                                print("pos", pos)
-                                tuple_i = self.screen.get_click(pos, state)
-                                print("tuple_i", tuple_i)
-                                break
-
+            
+            
+            while True:
+                try:
+                    for event in pygame.event.get():
+                        # print('get')
+                        if event.type == pygame.QUIT:
+                            sys.exit()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            print("mouse")
+                            pos = pygame.mouse.get_pos()  # Get mouse position
+                            print("pos", pos)
+                            tuple_i = self.screen.get_click(pos, state)
+                            print("tuple_i", tuple_i)
+                            break
+                        
+                    # if we have pieces in home not placed
+                    if not state.curr_player.is_home_empty():
                         if tuple_i[0] is None:
                             if tuple_i[1]:
                                 if number == 6:
@@ -482,7 +488,7 @@ class Logic:
                                     self.update_player_score(new_state)
 
                                     print(new_state)
-                                    self.screen.draw(new_state)
+                                    self.screen.draw(new_state, number)
                                     return self.play(new_state, depth + 1)
                                 else:
                                     print("cant add piece, number is not 6")
@@ -503,7 +509,7 @@ class Logic:
                                             self.play(newer_state, depth)
 
                                         print(new_state)
-                                        self.screen.draw(new_state)
+                                        self.screen.draw(new_state, number)
                                         return self.play(new_state, depth + 1)
                                     else:
                                         if self.check_and_move(
@@ -516,7 +522,7 @@ class Logic:
                                             self.play(newer_state, depth)
 
                                         self.change_player(new_state)
-                                        self.screen.draw(new_state)
+                                        self.screen.draw(new_state, number)
                                         print(new_state)
                                         return new_state
                                 else:
@@ -536,7 +542,7 @@ class Logic:
                                                 self.play(newer_state, depth)
 
                                             print(new_state)
-                                            self.screen.draw(new_state)
+                                            self.screen.draw(new_state, number)
                                             return self.play(new_state, depth + 1)
                                         else:
                                             if self.check_and_move(
@@ -546,7 +552,7 @@ class Logic:
                                                 self.play(newer_state, depth)
 
                                             self.change_player(new_state)
-                                            self.screen.draw(new_state)
+                                            self.screen.draw(new_state, number)
                                             print(new_state)
                                             return new_state
                             else:
@@ -560,7 +566,7 @@ class Logic:
                                                 self.play(newer_state, depth)
 
                                             print(new_state)
-                                            self.screen.draw(new_state)
+                                            self.screen.draw(new_state, number)
                                             return self.play(new_state, depth + 1)
                                         else:
                                             if self.check_and_move(
@@ -570,12 +576,104 @@ class Logic:
                                                 self.play(newer_state, depth)
 
                                             self.change_player(new_state)
-                                            self.screen.draw(new_state)
+                                            self.screen.draw(new_state, number)
                                             print(new_state)
                                             return new_state
-                    except:
-                        # print("excpected...")
-                        continue
+                    else:
+                        if tuple_i[0] is None:
+                            if tuple_i[1]:
+                                print("cant add piece, no pieces left in home")
+                                continue
+                            else:
+                                # if the player home is empty and we need to move only or for move
+                                pieces = state.curr_player.get_movable_pieces()
+                                new_state = deepcopy(state)
+                                if len(pieces) == 1:
+                                    if number == 6:
+                                        if self.check_and_move(
+                                            new_state,
+                                            pieces[0],
+                                            number,
+                                            pieces[0].id,
+                                        )[1]:
+                                            newer_state = deepcopy(new_state)
+                                            self.play(newer_state, depth)
+
+                                        print(new_state)
+                                        self.screen.draw(new_state, number)
+                                        return self.play(new_state, depth + 1)
+                                    else:
+                                        if self.check_and_move(
+                                            new_state,
+                                            pieces[0],
+                                            number,
+                                            pieces[0].id,
+                                        )[1]:
+                                            newer_state = deepcopy(new_state)
+                                            self.play(newer_state, depth)
+
+                                        self.change_player(new_state)
+                                        self.screen.draw(new_state, number)
+                                        print(new_state)
+                                        return new_state
+                                else:
+                                    print("continued...")
+                                    continue
+                        else:
+                            pieces = state.curr_player.get_movable_pieces()
+                            new_state = deepcopy(state)
+                            if tuple_i[0].is_safe:
+                                for piece in pieces:
+                                    if piece.safe == tuple_i[0].index:
+                                        if number == 6:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            print(new_state)
+                                            self.screen.draw(new_state, number)
+                                            return self.play(new_state, depth + 1)
+                                        else:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            self.change_player(new_state)
+                                            self.screen.draw(new_state, number)
+                                            print(new_state)
+                                            return new_state
+                            else:
+                                for piece in pieces:
+                                    if piece.pos == tuple_i[0].index:
+                                        if number == 6:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            print(new_state)
+                                            self.screen.draw(new_state, number)
+                                            return self.play(new_state, depth + 1)
+                                        else:
+                                            if self.check_and_move(
+                                                new_state, piece, number, piece.id
+                                            )[1]:
+                                                newer_state = deepcopy(new_state)
+                                                self.play(newer_state, depth)
+
+                                            self.change_player(new_state)
+                                            self.screen.draw(new_state, number)
+                                            print(new_state)
+                                            return new_state
+                except:
+                    # print("excpected...")
+                    continue
+
         # computer turn
         else:
             if state.curr_player.all_pieces_in_home():
@@ -585,7 +683,7 @@ class Logic:
                     self.update_player_score(new_state)
 
                     print(new_state)
-                    self.screen.draw(new_state)
+                    self.screen.draw(new_state, number)
                     return self.play(new_state, depth + 1)
                 else:
                     self.change_player(new_state)
@@ -602,10 +700,10 @@ class Logic:
 
                 if number == 6:
                     print(new_state)
-                    self.screen.draw(new_state)
+                    self.screen.draw(new_state, number)
                     return self.play(new_state, depth + 1)
                 else:
                     self.change_player(new_state)
-                    self.screen.draw(new_state)
+                    self.screen.draw(new_state, number)
                     print(new_state)
                     return new_state
