@@ -76,8 +76,7 @@ class LudoScreen:
 
     def update(self, state, number):
         return
-        # self.draw_dice(number, state)
-        # self.draw_screen(state)
+        # self.draw(state, number)
 
     def get_click(self, pos, state):
         x, y = pos
@@ -126,17 +125,4 @@ class LudoScreen:
 
         for square in state.squares:
             square.draw(self.screen, state)
-        pygame.display.flip()
-
-    def draw_dice(self, dice_result, state):
-        font = pygame.font.Font(None, 74)
-        text = font.render(str(dice_result), True, WHITE)
-        text_rect = text.get_rect(topleft=(10, 10))  # Position the text
-        background_rect = pygame.Rect(text_rect)
-        background_rect.inflate_ip(20, 20)
-
-        current_player_color = RED if state.curr_player.team == "y" else YELLOW
-        # Draw the background rectangle
-        pygame.draw.rect(self.screen, current_player_color, background_rect)
-        self.screen.blit(text, text_rect)  # Draw the text on the screen
         pygame.display.flip()

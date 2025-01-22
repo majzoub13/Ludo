@@ -22,13 +22,10 @@ class Main:
             self.init_state.board[p].protected(True)
 
         self.screen = LudoScreen()
-        self.screen.draw(self.init_state, '')
-        self.dice_result = None
+        self.screen.draw(self.init_state, "")
 
     def main(self):
         new_state = deepcopy(self.init_state)
-        print("new_state3:", new_state)
-        selected_piece_id = None
         run = True
         while run:
             # Check if game ended
@@ -40,20 +37,18 @@ class Main:
             if new_state.curr_player.turn == 1:
                 # dice_roll = self.logic.roll_dice()
                 for event in pygame.event.get():
-                    print('get_main')
+                    print("get_main")
                     if event.type == pygame.QUIT:
-                        print('quit')
+                        print("quit")
                         run = False
                         continue
                 # play
                 new_state = self.logic.play(new_state, 1)
                 print("new_state1:", new_state)
-                # self.screen.update(new_state, self.dice_result)
             else:
                 # play
                 new_state = self.logic.play(new_state, 1)
                 print("new_state2:", new_state)
-                # self.screen.update(new_state, self.dice_result)
 
         pygame.quit()
 
