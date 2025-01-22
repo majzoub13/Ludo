@@ -1,12 +1,9 @@
+from Logic import Logic
 from State import State
 from Player import Player
-from Piece import Piece
-from LudoNode import Node
-from Logic import Logic
-import random as rand
-from my_game import LudoScreen
-import pygame
+from LudoScreen import LudoScreen
 from copy import deepcopy
+import pygame
 
 
 class Main:
@@ -51,6 +48,19 @@ class Main:
                 print("new_state2:", new_state)
 
         pygame.quit()
+
+    # main no GUI
+
+    # def main(self):
+    #     new_state = self.logic.move(self.init_state, 1)
+
+    #     while True:
+    #         win = self.logic.check_win(new_state.base)
+    #         if win is not None:
+    #             print(self.check_win(new_state.base) + " won")
+    #             break
+
+    #         new_state = self.logic.move(new_state, 1)
 
 
 if __name__ == "__main__":

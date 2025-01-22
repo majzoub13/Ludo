@@ -1,5 +1,4 @@
 import pygame
-import sys
 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -51,12 +50,6 @@ class Square:
             obj_y = self.y + row * cell_size + cell_size // 2
 
             piece.draw(surface, (obj_x, obj_y), 5, 7)
-
-    def contains(self, pos):
-        return (
-            self.x <= pos[0] <= self.x + self.size
-            and self.y <= pos[1] <= self.y + self.size
-        )
 
 
 class LudoScreen:
@@ -114,15 +107,26 @@ class LudoScreen:
 
         # draw bases
         for i in range(state.base.yellow):
-            off = i * 11
+            off = i * 13
             pygame.draw.circle(self.screen, (255, 0, 255), (309 + off, 378), 7)
             pygame.draw.circle(self.screen, (255, 255, 0), (309 + off, 378), 5)
 
         for i in range(state.base.red):
-            off = i * 11
+            off = i * 13
             pygame.draw.circle(self.screen, (255, 0, 255), (309 + off, 273), 7)
             pygame.draw.circle(self.screen, (255, 0, 0), (309 + off, 273), 5)
 
+        # draw player home
+        for index, piece in enumerate(state.players[0].get_home_pieces()):
+            off = index * 13
+            pygame.draw.circle(self.screen, (255, 0, 255), (147 + off, 483), 7)
+            pygame.draw.circle(self.screen, (255, 255, 0), (147 + off, 483), 5)
+        for index, piece in enumerate(state.players[1].get_home_pieces()):
+            off = index * 13
+            pygame.draw.circle(self.screen, (255, 0, 255), (483 + off, 147), 7)
+            pygame.draw.circle(self.screen, (255, 0, 0), (483 + off, 147), 5)
+
+        # draw squares
         for square in state.squares:
             square.draw(self.screen, state)
         pygame.display.flip()

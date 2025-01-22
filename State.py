@@ -1,6 +1,6 @@
 from Base import Base
 from LudoNode import Node
-from my_game import Square
+from LudoScreen import Square
 
 
 class State:
